@@ -7,6 +7,7 @@ import vrepl;
 void main()
 {
 		auto repl = new Vrepl;
-		repl.setPrompt("$");
+		repl.config.prompt = "$";
+		repl.config.onInput = x => writeln("echo: ", x);
 		repl.loop();
 }

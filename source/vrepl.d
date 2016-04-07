@@ -2,37 +2,56 @@ module vrepl;
 
 import std.stdio: write, writeln;
 import std.conv: to;
+import containers;
+
+alias StringSet = HashSet!string;
+
+class Config {
+		string prompt;
+		StringSet quits;
+		void delegate(string) onInput;
+
+		this() {
+				prompt = ">";
+				quits.insert("quit");
+				quits.insert("bye");
+				quits.insert("exit");
+		}
+}
 
 class Vrepl {
-		string promptStr = ">";
+		Config config;
 
-		this() {}
-
-		void setPrompt(in char[] p) {
-				this.promptStr = p.to!string;
+		this() {
+				config = new Config();
 		}
 
 		void prompt() {
-				write(promptStr ~ " ");
+				write(config.prompt ~ " ");
 		}
 
-		void quit() {
+		void quit() { }
+
+		bool isQuit(string line) {
+				return config.quits.contains(line);
 		}
 
-		bool isQuit(in char[] line) {
-				return line == "quit" || line == "bye" || line == "exit";
-		}
 		void loop() {
 				import std.string: chomp;
 				import std.stdio: stdin, readln;
 				string line;
+				writeln("begin");
 				prompt();
 				while ((line = stdin.readln) !is null) {
 						line = line.chomp;
 						if (isQuit(line)) {
 								return;
 						}
-						writeln("your wrote:", line);
+						if (config.onInput != null) {
+								config.onInput(line);
+						} else {
+								writeln("your wrote:", line);
+						}
 						prompt();
 				}
 				quit();
