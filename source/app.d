@@ -6,8 +6,9 @@ import vrepl;
 
 void main()
 {
-		auto repl = new Vrepl;
-		repl.config.prompt = "$";
-		repl.config.onInput = x => writeln("echo: ", x);
-		repl.loop();
+    auto repl = new Vrepl;
+    repl.state.mode = Mode.SHELL;
+    repl.config.prompt[Mode.LINE] = "~";
+    repl.config.onInput = x => writeln("zecho: ", x);
+    repl.loop();
 }

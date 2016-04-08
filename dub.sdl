@@ -3,4 +3,4 @@ description "A minimal D application."
 copyright "Copyright © 2016, zhaopuming"
 authors "zhaopuming"
 
-dependency "emsi_containers" version="*"
+dependency "dutil" version="*"
