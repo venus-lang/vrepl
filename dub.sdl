@@ -1,5 +1,5 @@
 name "vrepl"
-description "A minimal D application."
+description "A REPL library for interactive commandline apps, used in repl of the Venus Programming Language"
 copyright "Copyright © 2016, zhaopuming"
 authors "zhaopuming"
 license "MIT"
