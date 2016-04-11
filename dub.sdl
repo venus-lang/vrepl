@@ -2,6 +2,7 @@ name "vrepl"
 description "A minimal D application."
 copyright "Copyright © 2016, zhaopuming"
 authors "zhaopuming"
+license "MIT"
 
 dependency "dutil" version="*"
 dependency "dexpect" version="*"
