@@ -4,3 +4,4 @@ copyright "Copyright © 2016, zhaopuming"
 authors "zhaopuming"
 
 dependency "dutil" version="*"
+dependency "dexpect" version="*"

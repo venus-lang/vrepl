@@ -4,21 +4,29 @@
  * http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
  * http://www.3waylabs.com/nw/WWW/products/wizcon/vt220.html
  **/
-module vrepl;
+module vrepl.repl;
 
 import std.stdio: write, writeln;
 import std.conv: to;
 import dutil.containers;
 import std.process;
+import vrepl.shell;
 
 alias StringSet = HashSet!string;
 
+enum SIGTTIN = 21;
+enum SIGTTOU = 22;
 enum ES_CLEAR = "\x1b[H\x1b[2J";
 enum ES_BEEP = "\x07";
 enum Mode { SHELL, LINE, MLINE, EDIT }
 
 class State {
     Mode mode = Mode.LINE;
+}
+
+extern(C) void sig_hand(int signal) nothrow @nogc @system {
+    import core.stdc.stdio: printf;
+    printf("signal %d catched!\n", signal);
 }
 
 class Config {
@@ -41,14 +49,24 @@ class Config {
 class Vrepl {
     Config config;
     State state;
+    Shell shell;
 
     this() {
         config = new Config();
         state = new State();
+        shell = new Shell();
+    }
+
+    void setMode(Mode m) {
+        this.state.mode = m;
     }
 
     void prompt() {
-        write(config.prompt[state.mode] ~ " ");
+        if (state.mode == Mode.SHELL) {
+            write(config.prompt[Mode.SHELL] ~ " ");
+        } else {
+            write(config.prompt[state.mode] ~ " ");
+        }
     }
 
     bool checkMode(string line) {
@@ -80,10 +98,11 @@ class Vrepl {
         import std.string: chomp;
         import std.stdio: stdin, readln;
 
+        /*
         import core.stdc.signal;
-        signal(21, SIG_IGN);
-        signal(22, SIG_IGN);
-        signal(23, SIG_IGN);
+        signal(SIGTTIN, &sig_hand);
+        signal(SIGTTOU, &sig_hand);
+        */
         string line;
         prompt();
         while ((line = stdin.readln) !is null) {
@@ -111,30 +130,8 @@ class Vrepl {
                     quit();
                     break;
                 case SHELL:
-                    writeln("shellll");
-                    writeln("shell");
                     {
-                        import std.process;
-                        /*
-                        pipes = pipeProcess(["/bin/bash", "-i", "-l"], Redirect.all);
-                        scope(exit) tryWait(pipes.pid);
-                        pipes.stdin.writeln(line);
-                        pipes.stdin.writeln("\r\n");
-                        //pipes.stdin.close();
-                        import core.stdc.stdio;
-                        foreach (buf; pipes.stdout.byLine) {
-                            writeln(buf);
-                        }
-                        */
-
-                        // wait(spawnProcess(["/bin/bash", "-i", "-c", line]));
-                           auto r = executeShell("/bin/bash -i -c '" ~ line ~ "'");
-                           if (r.status !=0) {
-                           writeln("error executing:", line);
-                           } else {
-                           writeln(r.output);
-                           }
-
+                        write(shell.send(line));
                     }
                     prompt();
                     break;

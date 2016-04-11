@@ -3,6 +3,6 @@ docs.json
 __dummy.html
 *.o
 *.obj
-vrepl
+/vrepl
 dub.selections.json
 
